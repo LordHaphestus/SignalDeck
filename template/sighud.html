@@ -1,349 +1,371 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=800, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, initial-scale=1.0" />
     <title>SIGDECK</title>
     <style>
-        @font-face {
-            font-family: 'Share Tech Mono';
-            src: url('/static/fonts/ShareTechMono-Regular.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      @font-face {
+        font-family: "Share Tech Mono";
+        src: url("/static/fonts/ShareTechMono-Regular.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            background: #080806;
-            color: #E8820C;
-            font-family: 'Share Tech Mono', monospace;
-            width: 800px;
-            height: 480px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+      body {
+        background: #080806;
+        color: #e8820c;
+        font-family: "Share Tech Mono", monospace;
+        width: 800px;
+        height: 480px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
 
-        /*CRT Scanline overlay */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0,0,0,0.08) 2px,
-                rgba(0,0,0,0.08) 4px
-            );
-            pointer-events: none;
-            z-index: 999;
-        }
+      /*CRT Scanline overlay */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.08) 2px,
+          rgba(0, 0, 0, 0.08) 4px
+        );
+        pointer-events: none;
+        z-index: 999;
+      }
 
-        /*-- Header-- */
-        #header {
-            height: 28px;
-            border-bottom: 2px solid #3A2A08;
-            display: flex;
-            align-items: center;
-            padding: 0 8px;
-            gap: 12px;
-            background: #0C0A04;
-            flex-shrink: 0;
-            overflow: hidden;
-        }
+      /*-- Header-- */
+      #header {
+        height: 28px;
+        border-bottom: 2px solid #3a2a08;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        gap: 12px;
+        background: #0c0a04;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
 
-        #title {
-            color: #FFB020;
-            font-size: 11px;
-            letter-spacing: 3px;
-            flex-shrink: 0;
-        }
+      #title {
+        color: #ffb020;
+        font-size: 11px;
+        letter-spacing: 3px;
+        flex-shrink: 0;
+      }
 
-        #passive-line {
-            flex: 1;
-            text-align: center;
-            font-size: 9px;
-            color: #3A2808;
-            white-space: nowrap;
-            overflow: hidden;
-            padding: 0 8px;
-        }
+      #passive-line {
+        flex: 1;
+        text-align: center;
+        font-size: 9px;
+        color: #3a2808;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0 8px;
+      }
 
-        .sys-badge {
-            font-size: 9px;
-            color: #3A2808;
-            margin-left: 8px;
-            white-space: nowrap;
-        }
-        .sys-badge span {
-            color: #E8820C;
-            background: #1A1000;
-            padding: 0 3px;
-        }
+      .sys-badge {
+        font-size: 9px;
+        color: #3a2808;
+        margin-left: 8px;
+        white-space: nowrap;
+      }
+      .sys-badge span {
+        color: #e8820c;
+        background: #1a1000;
+        padding: 0 3px;
+      }
 
-        #clock {
-            color: #FFB020;
-            font-size: 10px;
-            margin-left: 8px;
-            flex-shrink: 0;
-        }
+      #clock {
+        color: #ffb020;
+        font-size: 10px;
+        margin-left: 8px;
+        flex-shrink: 0;
+      }
 
-        /* --Main Grid-- */
-        #grid {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
+      /* --Main Grid-- */
+      #grid {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+      }
 
-        #col-left {
-            flex: 0 0 62%;
-            border-right: 2px solid #3A2A08;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      #col-left {
+        flex: 0 0 62%;
+        border-right: 2px solid #3a2a08;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-        #col-right {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      #col-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-        #zone-ap {
-            flex: 0 0 58%;
-            border-bottom: 2px solid #3A2A08;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      #zone-ap {
+        flex: 0 0 58%;
+        border-bottom: 2px solid #3a2a08;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-        #zone-clients {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      #zone-clients {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-        #zone-ble {
-            flex: 1;
-            border-bottom: 2px solid #3A2A08;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      #zone-ble {
+        flex: 1;
+        border-bottom: 2px solid #3a2a08;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-        #zone-probes {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
+      #zone-probes {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
 
-        .zone-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2px 5px;
-            background: #120C00;
-            border-bottom: 1px solid #3A2A08;
-            white-space: nowrap;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
+      .zone-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2px 5px;
+        background: #120c00;
+        border-bottom: 1px solid #3a2a08;
+        white-space: nowrap;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
 
-        .zone-title {
-            color: #FFB020;
-            font-size: 9.5px;
-            letter-spacing: 2px;
-        }
-        .zone-count {
-            color: #3A2808;
-            font-size: 9px;
-        }
+      .zone-title {
+        color: #ffb020;
+        font-size: 9.5px;
+        letter-spacing: 2px;
+      }
+      .zone-count {
+        color: #3a2808;
+        font-size: 9px;
+      }
 
-        .col-headers {
-            display: grid;
-            padding: 1px 5px 2px;
-            border-bottom: 1px solid #221600;
-            flex-shrink: 0;
-        }
+      .col-headers {
+        display: grid;
+        padding: 1px 5px 2px;
+        border-bottom: 1px solid #221600;
+        flex-shrink: 0;
+      }
 
-        .col-headers span {
-            font-size: 8.5px;
-            color: #3A2808;
-        }
+      .col-headers span {
+        font-size: 8.5px;
+        color: #3a2808;
+      }
 
-        .zone-body {
-            flex: 1;
-            overflow: hidden;
-        }
+      .zone-body {
+        flex: 1;
+        overflow: hidden;
+      }
 
-        /* -- Tabular Rows-- */
-        .row {
-            display: grid;
-            padding: 1px 5px;
-            border-bottom: 1px solid #120c00
-        }
-        .row:nth-child(odd)  { background: #0D0A02; }
-        .row:nth-child(even) { background: #080806; }
+      /* -- Tabular Rows-- */
+      .row {
+        display: grid;
+        padding: 1px 5px;
+        border-bottom: 1px solid #120c00;
+      }
+      .row:nth-child(odd) {
+        background: #0d0a02;
+      }
+      .row:nth-child(even) {
+        background: #080806;
+      }
 
-        .cell {
-            font-size: 10px;
-            color: #E8820C;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            padding-right: 3px;
-        }
+      .cell {
+        font-size: 10px;
+        color: #e8820c;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 3px;
+      }
 
-        /* --Signal Strength Colours-- */
-        .sig-strong { color: #ffd700; }
-        .sig-medium { color: #E8820C; }
-        .sig-weak   { color: #7a5500; }
+      /* --Signal Strength Colours-- */
+      .sig-strong {
+        color: #ffd700;
+      }
+      .sig-medium {
+        color: #e8820c;
+      }
+      .sig-weak {
+        color: #7a5500;
+      }
 
-        /* --Encryption Flags--  */
-        .enc-open { color: #ff4400; }
-        .enc-wpa  { color: #7a5500; }
+      /* --Encryption Flags--  */
+      .enc-open {
+        color: #ff4400;
+      }
+      .enc-wpa {
+        color: #7a5500;
+      }
 
-        .no-data {
-            color: #3a2800;
-            font-size: 10px;
-            padding: 8px 6px;
-        }
+      .no-data {
+        color: #3a2800;
+        font-size: 10px;
+        padding: 8px 6px;
+      }
 
-        /* --Footer-- */
-        #status-bar {
-            height: 22px;
-            border-top: 2px solid #3A2A08;
-            background: #0C0A04;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 8px;
-            flex-shrink: 0;
-        }
+      /* --Footer-- */
+      #status-bar {
+        height: 22px;
+        border-top: 2px solid #3a2a08;
+        background: #0c0a04;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 8px;
+        flex-shrink: 0;
+      }
 
-        .status-counts {
-            display: flex;
-            gap: 14px;
-            color: #3A2808;
-            font-size: 9.5px;
-            white-space: nowrap;
-        }
-        .status-counts span {
-            color: #E8820C;
-        }
+      .status-counts {
+        display: flex;
+        gap: 14px;
+        color: #3a2808;
+        font-size: 9.5px;
+        white-space: nowrap;
+      }
+      .status-counts span {
+        color: #e8820c;
+      }
 
-        #session-time {
-            font-size: 9.5px;
-            color: #3A2808;
-            white-space: nowrap;
-        }
-        #session-time span {
-            color: #FFB020;
-        }
+      #session-time {
+        font-size: 9.5px;
+        color: #3a2808;
+        white-space: nowrap;
+      }
+      #session-time span {
+        color: #ffb020;
+      }
 
-        #status-text {
-            font-size: 9px;
-            color: #3A2808;
-            letter-spacing: 1px;
-            white-space: nowrap;
-        }
-    </style> 
+      #status-text {
+        font-size: 9px;
+        color: #3a2808;
+        letter-spacing: 1px;
+        white-space: nowrap;
+      }
+    </style>
     <script src="/socket.io/socket.io.js"></script>
-</head>
+  </head>
 
-<body>
-
+  <body>
     <div id="header">
-        <div id="title">SIGDECK</div>
-        <div id="passive-line">// PASSIVE MODE // KISMET: ACTIVE // NO TX //</div>
-        <div class="sys-badge">PIPE <span id="sys-pipe">OK</span></div>
-        <div class="sys-badge">DB <span id="sys-db">OK</span></div>
-        <div class="sys-badge">BLE <span id="sys-ble">OK</span></div>
-        <div id="clock">--:--:--</div>
+      <div id="title">SIGDECK</div>
+      <div id="passive-line">// PASSIVE MODE // KISMET: ACTIVE // NO TX //</div>
+      <div class="sys-badge">PIPE <span id="sys-pipe">OK</span></div>
+      <div class="sys-badge">DB <span id="sys-db">OK</span></div>
+      <div class="sys-badge">BLE <span id="sys-ble">OK</span></div>
+      <div id="clock">--:--:--</div>
     </div>
 
-        <div id="grid">
-            <div id="col-left">
-            
-                <div id="zone-ap">
-                    <div class="zone-header">
-                        <span class="zone-title">ACCESS POINTS</span>
-                        <span class="zone-count" id="count-ap">--</span>
-                    </div>
-                    <div class="col-headers" style="grid-template-columns: 28% 20% 5% 8% 14% 7% 18%;">
-                    <span>SSID</span><span>BSSID</span><span>CH</span><span>BAND</span><span>ENC</span><span>DBm</span><span>MANUF</span>
-                    </div>
-                    <div class="zone-body" id="list-ap">
-                        <div class="no-data">Awaiting Signal...</div>
-                    </div>
-                </div>
-
-                <div id="zone-clients">
-                    <div class="zone-header">
-                        <span class="zone-title">CLIENTS</span>
-                        <span class="zone-count" id="count-clients">--</span>
-                    </div>
-                    <div class="col-headers" style="grid-template-columns: 30% 20% 30% 10% 10%;">
-                        <span>MAC</span><span>MANUF</span><span>ASSOC AP</span><span>DBm</span><span>LAST</span>
-                    </div>
-                    <div class="zone-body" id="list-clients">
-                        <div class="no-data">Awaiting Signal...</div>
-                    </div>
-                </div>
-
-            </div>
-
-            <div id="col-right">
-
-                <div id="zone-ble">
-                    <div class="zone-header">
-                        <span class="zone-title">BLE DEVICES</span>
-                        <span class="zone-count" id="count-ble">--</span>
-                    </div>
-                    <div class="col-headers" style="grid-template-columns:40% 32% 16% 12%;">
-                        <span>MAC</span><span>MANUF</span><span>TYPE</span><span>DBm</span>
-                    </div>
-                    <div class="zone-body" id="list-ble">
-                        <div class="no-data">Awaiting signal...</div>
-                    </div>
-                </div>
-
-                <div id="zone-probes">
-                    <div class="zone-header">
-                        <span class="zone-title">PROBE REQUESTS</span>
-                        <span class="zone-count" id="count-probes">--</span>
-                    </div>
-                    <div class="col-headers" style="grid-template-columns:42% 58%;">
-                        <span>CLIENT MAC</span><span>PROBED SSID</span>
-                    </div>
-                    <div class="zone-body" id="list-probes">
-                        <div class="no-data">Awaiting Signal...</div>
-                    </div>
-                </div>
-
-            </div>
-
+    <div id="grid">
+      <div id="col-left">
+        <div id="zone-ap">
+          <div class="zone-header">
+            <span class="zone-title">ACCESS POINTS</span>
+            <span class="zone-count" id="count-ap">--</span>
+          </div>
+          <div
+            class="col-headers"
+            style="grid-template-columns: 28% 20% 5% 8% 14% 7% 18%"
+          >
+            <span>SSID</span><span>BSSID</span><span>CH</span><span>BAND</span
+            ><span>ENC</span><span>DBm</span><span>MANUF</span>
+          </div>
+          <div class="zone-body" id="list-ap">
+            <div class="no-data">Awaiting Signal...</div>
+          </div>
         </div>
 
-        <div id="status-bar">
-            <div class="status-counts">
-                <span>AP <span id="stat-aps">0</span></span>
-                <span>CLT <span id="stat-clients">0</span></span>
-                <span>BLE <span id="stat-ble">0</span></span>
-                <span>PRB <span id="stat-probes">0</span></span>
-            </div>
-            <div id="session-time">SESSION <span id="stat-session">00:00:00</span></div>
-            <div id="status-text">SIGDECK-V1 // PASSIVE // NO TX</div>
+        <div id="zone-clients">
+          <div class="zone-header">
+            <span class="zone-title">CLIENTS</span>
+            <span class="zone-count" id="count-clients">--</span>
+          </div>
+          <div
+            class="col-headers"
+            style="grid-template-columns: 30% 20% 30% 10% 10%"
+          >
+            <span>MAC</span><span>MANUF</span><span>ASSOC AP</span
+            ><span>DBm</span><span>LAST</span>
+          </div>
+          <div class="zone-body" id="list-clients">
+            <div class="no-data">Awaiting Signal...</div>
+          </div>
         </div>
-        
-</body>
+      </div>
+
+      <div id="col-right">
+        <div id="zone-ble">
+          <div class="zone-header">
+            <span class="zone-title">BLE DEVICES</span>
+            <span class="zone-count" id="count-ble">--</span>
+          </div>
+          <div
+            class="col-headers"
+            style="grid-template-columns: 40% 32% 16% 12%"
+          >
+            <span>MAC</span><span>MANUF</span><span>TYPE</span><span>DBm</span>
+          </div>
+          <div class="zone-body" id="list-ble">
+            <div class="no-data">Awaiting signal...</div>
+          </div>
+        </div>
+
+        <div id="zone-probes">
+          <div class="zone-header">
+            <span class="zone-title">PROBE REQUESTS</span>
+            <span class="zone-count" id="count-probes">--</span>
+          </div>
+          <div class="col-headers" style="grid-template-columns: 42% 58%">
+            <span>CLIENT MAC</span><span>PROBED SSID</span>
+          </div>
+          <div class="zone-body" id="list-probes">
+            <div class="no-data">Awaiting Signal...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="status-bar">
+      <div class="status-counts">
+        <span>AP <span id="stat-aps">0</span></span>
+        <span>CLT <span id="stat-clients">0</span></span>
+        <span>BLE <span id="stat-ble">0</span></span>
+        <span>PRB <span id="stat-probes">0</span></span>
+      </div>
+      <div id="session-time">
+        SESSION <span id="stat-session">00:00:00</span>
+      </div>
+      <div id="status-text">SIGDECK-V1 // PASSIVE // NO TX</div>
+    </div>
+  </body>
 </html>
