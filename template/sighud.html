@@ -367,5 +367,114 @@
       </div>
       <div id="status-text">SIGDECK-V1 // PASSIVE // NO TX</div>
     </div>
+
+    <script>
+      const socket = io();
+
+      // -- Helpers --
+
+      function sigClass(dbm) {
+          if (dbm >= -60) return 'sig-strong';
+          if (dbm >= -75) return 'sig-medium';
+          return 'sig-weak';
+      }
+
+      function sigBars(dbm) {
+          if (dbm >= -60) return '&#9619;&#9619;&#9619;';
+          if (dbm >= -75) return '&#9619;&#9619;&#9617;';
+          return '&#9619;&#9617;&#9617;';
+      }
+
+      function trunc(str, len) {
+          if (!str) return '---';
+          return str.length > ? str.slice(0, len -1) + '...' : str;
+      }
+
+      // --Renderers-- //
+
+      function rederAPs(aps) {
+          const el    = document.getElementById('list-ap');
+          const count = document.getElementById('count-ap');
+          if (!aps.length) {
+              el.innerHTML = '<div class="no-data">no APs Detected</div>';
+              return;
+          }
+          count.textContent = aps.length + ' SHOWN';
+          const cols = '28% 20% 5% 8% 14% 7% 18%';
+          el.innerHTML = aps.map(ap => '
+              <div class='row' style="grid-template-columns:${cols}">
+                  <span class="cell">${trunc(ap.ssid || '[hidden]', 16)}</span>
+                  <span class="cell">${trunc(ap.mac, 17)}</span>
+                  <span class="cell">${ap.channel || '?'}</span>
+                  <span class="cell">${ap.band || '?'}</span>
+                  <span class="cell ${ap.encryption === 'Open' ? 'enc-open' : 'enc-wpa'}">${trunc(ap.encryption || '?', 8)}</span>
+                  <span class="cell ${sigClass(ap.signal_dbm)}"> ${ap.signal_dbm}</span>
+                  <span class="cell">${trunc(ap.manufacturer || '?', 10)}</span>
+              </div>
+          ').join('');
+      }
+
+      function renderClients(clients) {
+          const el = document.getElementById('list-clients');
+          const count = document.getElementById('count-clients');
+          if (!clients.length) {
+              el.innerHTML = '<div class="no-data">No Clients Detected</div>';
+              return;
+          }
+          count.textContent = clients.length + ' SHOWN';
+          const cols = '30% 20% 30% 10% 10%';
+          el.innerHTML = clients.map(c => '
+              <div class="row" style="grid-template-columns:${cols}">
+                  <span class="cell">&{trunc(c.mac, 17)}</span>
+                  <span class="cell">${trunc(c.manufacturer || '?', 10)}</span>
+                  <span class="cell">${trunc(c.ssid || 'unassoc', 16)}</span>
+                  <span class="cell ${sigClass(c.signal_dbm)}">${c.signal_dbm}</span>
+                  <span class"cell">${trunc(c.last_seen || '?', 8)}</span>
+              </div>
+          ').join('');
+      }
+
+      function renderBLE(devices) {
+          const el = document.getElementById('list-ble');
+          const count = document.getElementById('count-ble');
+          if (!devices.length) {
+              el.innerHTML = '<div class="no-data">No BLE Detected</div>';
+              return;
+          }
+          count.textContent = devices.length + ' SHOWN';
+          const cols = '40% 32% 16% 12%';
+          el.innerHTML = clients.map(d => '
+              <div class="row" style="grid-template-columns:${cols}">
+                  <span class="cell">&{trunc(d.mac, 17)}</span>
+                  <span class="cell">${trunc(d.manufacturer || '?', 12)}</span>
+                  <span class="cell">${trunc(d.device_type || '?', 8)}</span>
+                  <span class="cell ${sigClass(d.signal_dbm)}">${d.signal_dbm}</span>
+              </div>
+          ').join('');
+      }
+
+      function renderProbes(probes) {
+          const el = document.getElementById('list-probes');
+          const count = document.getElementById('count-probes');
+          if (!probes.length) {
+              el.innerHTML = '<div class="no-data">No Probes Detected</div>';
+              return;
+          }
+          count.textContent = probes.length + ' SHOWN';
+          const cols = '42% 58%';
+          el.innerHTML = clients.map(p => '
+              <div class="row" style="grid-template-columns:${cols}">
+                  <span class="cell">&{trunc(p.client_mac, 17)}</span>
+                  <span class="cell">${trunc(d.probed_ssid || '[wildcard]', 24)}</span>
+              </div>
+          ').join('');
+      }
+
+      // --Socket Events -- //
+
+      socket.on('signal_update', function(data) {
+        
+      }
+    </script>
   </body>
 </html>
