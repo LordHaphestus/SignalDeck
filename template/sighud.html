@@ -473,8 +473,54 @@
       // --Socket Events -- //
 
       socket.on('signal_update', function(data) {
-        
+        renderAPs(data.access_points || []);
+        renderClients(data.clients || []);
+        renderBLE(data.ble_devices || []);
+        renderProbes(data.probes || []);
+
+        const s = data.stats || {};
+        document.getElementById('stat-aps').textContent = s.total_aps ?? '--';
+        document.getElementById('stat-clients').textContent = s.total_clients ?? '--';
+        document.getElementById('stat-ble').textContent = s.total_ble ?? '--';
+        document.getElementById('stat-probes').textContent = s.total_probes ?? '--';
+
+        document.getElementById('sys-pipe').textContent = s.pipe_ok !== false ? 'OK' : 'ERR';
+        document.getElementById('sys-db').textContent = s.db_ok !== false ? 'OK' : 'ERR';
+        document.getElementById('sys-ble').textContent = s.ble_ok !== false ? 'OK' : 'ERR';
+      });
+
+      socket.on('connect', function() {
+        document.getElementById('sys-pipe').textContent = 'OK';
+      });
+
+      socket.on('disconnect', function() {
+        document.getElementById('sys-pipe').textContent = 'ERR';
+        document.getElementById('sys-db').textContent = '---';
+        document.getElementById('sys-ble').textContent = '---';
+      });
+
+      // -- Clock -- //
+
+      function updateClock() {
+        document.getElementById('clock').textContent =
+            new Date().toTimeString().slice(0, 8);
       }
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // -- Session Timer -- //
+
+      const sessionStart = Date.now();
+
+      function updateSession() {
+        const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+        const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+        const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('stat-session').textContent = '${h}:${m}:${s}';
+      }
+      updateSession();
+      setInterval(updateSession, 1000);
     </script>
   </body>
 </html>
