@@ -1,4 +1,6 @@
 # config.example.py - copy to config.py and fill in real values
+from datetime import datetime
+
 KISMET_URL = "http://localhost:2501"
 KISMET_USER = "Kismet Username"
 KISMET_PASS = "Kismet Password"
@@ -13,3 +15,7 @@ FAILURE_THRESHOLD = 3
 
 HUD_HOST = "0.0.0.0"
 HUD_PORT = 5000
+
+def log(message):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] {message}")

@@ -16,13 +16,6 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-# Logging Helper
-
-
-def log(message):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] {message}")
-
 # Write PID to file
 
 

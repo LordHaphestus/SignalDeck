@@ -12,11 +12,6 @@ def write_pid():
     with open(PID_FILE_MONITOR, "w") as f:
         f.write(str(os.getpid()))
 
-def log(message):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] {message}")
-
-
 def cleanup(signum, frame):
     log("Monitor Daemon shutting down - cleaning up PID file")
     if os.path.exists(PID_FILE_MONITOR):
