@@ -34,7 +34,8 @@ def get_clients():
         rows = conn.execute("""
             SELECT c.mac, c.manufacturer, c.signal_dbm, c.last_seen, a.ssid
             FROM clients c
-            LEFT JOIN access_points ON c.ap_mac = a.mac
+            LEFT JOIN ap_clients ac ON c.mac = ac.client_mac
+            LEFT JOIN access_points a ON ac.ap_mac = a.mac
             ORDER BY c.signal_dbm DESC
             LIMIT 20
         """).fetchall()
@@ -127,7 +128,7 @@ def main():
     t = threading.Thread(target=broadcast_loop, daemon=True)
     t.start()
     log(f"Broadcasting on {HUD_HOST}:{HUD_PORT}")
-    socketio.run(app, host=HUD_HOST, port=PORT_PORT)
+    socketio.run(app, host=HUD_HOST, port=HUD_PORT)
 
 if __name__ == '__main__':
     main()
