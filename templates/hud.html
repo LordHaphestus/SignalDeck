@@ -273,7 +273,7 @@
         white-space: nowrap;
       }
     </style>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="/static/js/socket.io.js"></script>
   </head>
 
   <body>
@@ -387,12 +387,12 @@
 
       function trunc(str, len) {
           if (!str) return '---';
-          return str.length > ? str.slice(0, len -1) + '...' : str;
+          return str.length > len ? str.slice(0, len -1) + '...' : str;
       }
 
       // --Renderers-- //
 
-      function rederAPs(aps) {
+      function renderAPs(aps) {
           const el    = document.getElementById('list-ap');
           const count = document.getElementById('count-ap');
           if (!aps.length) {
@@ -401,7 +401,7 @@
           }
           count.textContent = aps.length + ' SHOWN';
           const cols = '28% 20% 5% 8% 14% 7% 18%';
-          el.innerHTML = aps.map(ap => '
+          el.innerHTML = aps.map(ap => `
               <div class='row' style="grid-template-columns:${cols}">
                   <span class="cell">${trunc(ap.ssid || '[hidden]', 16)}</span>
                   <span class="cell">${trunc(ap.mac, 17)}</span>
@@ -411,7 +411,7 @@
                   <span class="cell ${sigClass(ap.signal_dbm)}"> ${ap.signal_dbm}</span>
                   <span class="cell">${trunc(ap.manufacturer || '?', 10)}</span>
               </div>
-          ').join('');
+          `).join('');
       }
 
       function renderClients(clients) {
@@ -423,15 +423,15 @@
           }
           count.textContent = clients.length + ' SHOWN';
           const cols = '30% 20% 30% 10% 10%';
-          el.innerHTML = clients.map(c => '
+          el.innerHTML = clients.map(c => `
               <div class="row" style="grid-template-columns:${cols}">
-                  <span class="cell">&{trunc(c.mac, 17)}</span>
+                  <span class="cell">${trunc(c.mac, 17)}</span>
                   <span class="cell">${trunc(c.manufacturer || '?', 10)}</span>
                   <span class="cell">${trunc(c.ssid || 'unassoc', 16)}</span>
                   <span class="cell ${sigClass(c.signal_dbm)}">${c.signal_dbm}</span>
                   <span class"cell">${trunc(c.last_seen || '?', 8)}</span>
               </div>
-          ').join('');
+          `).join('');
       }
 
       function renderBLE(devices) {
@@ -443,14 +443,14 @@
           }
           count.textContent = devices.length + ' SHOWN';
           const cols = '40% 32% 16% 12%';
-          el.innerHTML = clients.map(d => '
+          el.innerHTML = devices.map(d => `
               <div class="row" style="grid-template-columns:${cols}">
-                  <span class="cell">&{trunc(d.mac, 17)}</span>
+                  <span class="cell">${trunc(d.mac, 17)}</span>
                   <span class="cell">${trunc(d.manufacturer || '?', 12)}</span>
                   <span class="cell">${trunc(d.device_type || '?', 8)}</span>
                   <span class="cell ${sigClass(d.signal_dbm)}">${d.signal_dbm}</span>
               </div>
-          ').join('');
+          `).join('');
       }
 
       function renderProbes(probes) {
@@ -462,12 +462,12 @@
           }
           count.textContent = probes.length + ' SHOWN';
           const cols = '42% 58%';
-          el.innerHTML = clients.map(p => '
+          el.innerHTML = probes.map(p => `
               <div class="row" style="grid-template-columns:${cols}">
-                  <span class="cell">&{trunc(p.client_mac, 17)}</span>
-                  <span class="cell">${trunc(d.probed_ssid || '[wildcard]', 24)}</span>
+                  <span class="cell">${trunc(p.client_mac, 17)}</span>
+                  <span class="cell">${trunc(p.probed_ssid || '[wildcard]', 24)}</span>
               </div>
-          ').join('');
+          `).join('');
       }
 
       // --Socket Events -- //
@@ -517,7 +517,7 @@
         const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
         const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
         const s = String(elapsed % 60).padStart(2, '0');
-        document.getElementById('stat-session').textContent = '${h}:${m}:${s}';
+        document.getElementById('stat-session').textContent = `${h}:${m}:${s}`;
       }
       updateSession();
       setInterval(updateSession, 1000);
