@@ -20,9 +20,9 @@ def get_db():
 
 
 def write_pid():
-    with open(PID_FILE, 'w') as f:
+    with open(PID_FILE_DB, 'w') as f:
         f.write(str(os.getpid()))
-    log(f"PID {os.getpid()} written to {PID_FILE}")
+    log(f"PID {os.getpid()} written to {PID_FILE_DB}")
 
 # Kismet API Call
 
@@ -234,7 +234,7 @@ def poll_kismet():
         except Exception as e:
             log(f"ERROR in poll loop: {e}")
 
-        time.sleep(POLL_INTERVAL)
+        time.sleep(POLL_INTERVAL_DB)
 
 
 if __name__ == "__main__":
