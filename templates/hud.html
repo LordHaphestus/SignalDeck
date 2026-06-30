@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, initial-scale=1.0" />
+    <title>SIGDECK</title>
+    <style>
+      @font-face {
+        font-family: "Share Tech Mono";
+        src: url("/static/fonts/ShareTechMono-Regular.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #080806;
+        color: #e8820c;
+        font-family: "Share Tech Mono", monospace;
+        width: 800px;
+        height: 480px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /*CRT Scanline overlay */
+      body::after {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.08) 2px,
+          rgba(0, 0, 0, 0.08) 4px
+        );
+        pointer-events: none;
+        z-index: 999;
+      }
+
+      /*-- Header-- */
+      #header {
+        height: 28px;
+        border-bottom: 2px solid #3a2a08;
+        display: flex;
+        align-items: center;
+        padding: 0 8px;
+        gap: 12px;
+        background: #0c0a04;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+
+      #title {
+        color: #ffb020;
+        font-size: 11px;
+        letter-spacing: 3px;
+        flex-shrink: 0;
+      }
+
+      #passive-line {
+        flex: 1;
+        text-align: center;
+        font-size: 9px;
+        color: #3a2808;
+        white-space: nowrap;
+        overflow: hidden;
+        padding: 0 8px;
+      }
+
+      .sys-badge {
+        font-size: 9px;
+        color: #3a2808;
+        margin-left: 8px;
+        white-space: nowrap;
+      }
+      .sys-badge span {
+        color: #e8820c;
+        background: #1a1000;
+        padding: 0 3px;
+      }
+
+      #clock {
+        color: #ffb020;
+        font-size: 10px;
+        margin-left: 8px;
+        flex-shrink: 0;
+      }
+
+      /* --Main Grid-- */
+      #grid {
+        flex: 1;
+        display: flex;
+        overflow: hidden;
+      }
+
+      #col-left {
+        flex: 0 0 62%;
+        border-right: 2px solid #3a2a08;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #col-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #zone-ap {
+        flex: 0 0 58%;
+        border-bottom: 2px solid #3a2a08;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #zone-clients {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #zone-ble {
+        flex: 1;
+        border-bottom: 2px solid #3a2a08;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      #zone-probes {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .zone-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2px 5px;
+        background: #120c00;
+        border-bottom: 1px solid #3a2a08;
+        white-space: nowrap;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .zone-title {
+        color: #ffb020;
+        font-size: 9.5px;
+        letter-spacing: 2px;
+      }
+      .zone-count {
+        color: #3a2808;
+        font-size: 9px;
+      }
+
+      .col-headers {
+        display: grid;
+        padding: 1px 5px 2px;
+        border-bottom: 1px solid #221600;
+        flex-shrink: 0;
+      }
+
+      .col-headers span {
+        font-size: 8.5px;
+        color: #3a2808;
+      }
+
+      .zone-body {
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* -- Tabular Rows-- */
+      .row {
+        display: grid;
+        padding: 1px 5px;
+        border-bottom: 1px solid #120c00;
+      }
+      .row:nth-child(odd) {
+        background: #0d0a02;
+      }
+      .row:nth-child(even) {
+        background: #080806;
+      }
+
+      .cell {
+        font-size: 10px;
+        color: #e8820c;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding-right: 3px;
+      }
+
+      /* --Signal Strength Colours-- */
+      .sig-strong {
+        color: #ffd700;
+      }
+      .sig-medium {
+        color: #e8820c;
+      }
+      .sig-weak {
+        color: #7a5500;
+      }
+
+      /* --Encryption Flags--  */
+      .enc-open {
+        color: #ff4400;
+      }
+      .enc-wpa {
+        color: #7a5500;
+      }
+
+      .no-data {
+        color: #3a2800;
+        font-size: 10px;
+        padding: 8px 6px;
+      }
+
+      /* --Footer-- */
+      #status-bar {
+        height: 22px;
+        border-top: 2px solid #3a2a08;
+        background: #0c0a04;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 8px;
+        flex-shrink: 0;
+      }
+
+      .status-counts {
+        display: flex;
+        gap: 14px;
+        color: #3a2808;
+        font-size: 9.5px;
+        white-space: nowrap;
+      }
+      .status-counts span {
+        color: #e8820c;
+      }
+
+      #session-time {
+        font-size: 9.5px;
+        color: #3a2808;
+        white-space: nowrap;
+      }
+      #session-time span {
+        color: #ffb020;
+      }
+
+      #status-text {
+        font-size: 9px;
+        color: #3a2808;
+        letter-spacing: 1px;
+        white-space: nowrap;
+      }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+
+  <body>
+    <div id="header">
+      <div id="title">SIGDECK</div>
+      <div id="passive-line">// PASSIVE MODE // KISMET: ACTIVE // NO TX //</div>
+      <div class="sys-badge">PIPE <span id="sys-pipe">OK</span></div>
+      <div class="sys-badge">DB <span id="sys-db">OK</span></div>
+      <div class="sys-badge">BLE <span id="sys-ble">OK</span></div>
+      <div id="clock">--:--:--</div>
+    </div>
+
+    <div id="grid">
+      <div id="col-left">
+        <div id="zone-ap">
+          <div class="zone-header">
+            <span class="zone-title">ACCESS POINTS</span>
+            <span class="zone-count" id="count-ap">--</span>
+          </div>
+          <div
+            class="col-headers"
+            style="grid-template-columns: 28% 20% 5% 8% 14% 7% 18%"
+          >
+            <span>SSID</span><span>BSSID</span><span>CH</span><span>BAND</span
+            ><span>ENC</span><span>DBm</span><span>MANUF</span>
+          </div>
+          <div class="zone-body" id="list-ap">
+            <div class="no-data">Awaiting Signal...</div>
+          </div>
+        </div>
+
+        <div id="zone-clients">
+          <div class="zone-header">
+            <span class="zone-title">CLIENTS</span>
+            <span class="zone-count" id="count-clients">--</span>
+          </div>
+          <div
+            class="col-headers"
+            style="grid-template-columns: 30% 20% 30% 10% 10%"
+          >
+            <span>MAC</span><span>MANUF</span><span>ASSOC AP</span
+            ><span>DBm</span><span>LAST</span>
+          </div>
+          <div class="zone-body" id="list-clients">
+            <div class="no-data">Awaiting Signal...</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="col-right">
+        <div id="zone-ble">
+          <div class="zone-header">
+            <span class="zone-title">BLE DEVICES</span>
+            <span class="zone-count" id="count-ble">--</span>
+          </div>
+          <div
+            class="col-headers"
+            style="grid-template-columns: 40% 32% 16% 12%"
+          >
+            <span>MAC</span><span>MANUF</span><span>TYPE</span><span>DBm</span>
+          </div>
+          <div class="zone-body" id="list-ble">
+            <div class="no-data">Awaiting signal...</div>
+          </div>
+        </div>
+
+        <div id="zone-probes">
+          <div class="zone-header">
+            <span class="zone-title">PROBE REQUESTS</span>
+            <span class="zone-count" id="count-probes">--</span>
+          </div>
+          <div class="col-headers" style="grid-template-columns: 42% 58%">
+            <span>CLIENT MAC</span><span>PROBED SSID</span>
+          </div>
+          <div class="zone-body" id="list-probes">
+            <div class="no-data">Awaiting Signal...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="status-bar">
+      <div class="status-counts">
+        <span>AP <span id="stat-aps">0</span></span>
+        <span>CLT <span id="stat-clients">0</span></span>
+        <span>BLE <span id="stat-ble">0</span></span>
+        <span>PRB <span id="stat-probes">0</span></span>
+      </div>
+      <div id="session-time">
+        SESSION <span id="stat-session">00:00:00</span>
+      </div>
+      <div id="status-text">SIGDECK-V1 // PASSIVE // NO TX</div>
+    </div>
+
+    <script>
+      const socket = io();
+
+      // -- Helpers --
+
+      function sigClass(dbm) {
+          if (dbm >= -60) return 'sig-strong';
+          if (dbm >= -75) return 'sig-medium';
+          return 'sig-weak';
+      }
+
+      function sigBars(dbm) {
+          if (dbm >= -60) return '&#9619;&#9619;&#9619;';
+          if (dbm >= -75) return '&#9619;&#9619;&#9617;';
+          return '&#9619;&#9617;&#9617;';
+      }
+
+      function trunc(str, len) {
+          if (!str) return '---';
+          return str.length > ? str.slice(0, len -1) + '...' : str;
+      }
+
+      // --Renderers-- //
+
+      function rederAPs(aps) {
+          const el    = document.getElementById('list-ap');
+          const count = document.getElementById('count-ap');
+          if (!aps.length) {
+              el.innerHTML = '<div class="no-data">no APs Detected</div>';
+              return;
+          }
+          count.textContent = aps.length + ' SHOWN';
+          const cols = '28% 20% 5% 8% 14% 7% 18%';
+          el.innerHTML = aps.map(ap => '
+              <div class='row' style="grid-template-columns:${cols}">
+                  <span class="cell">${trunc(ap.ssid || '[hidden]', 16)}</span>
+                  <span class="cell">${trunc(ap.mac, 17)}</span>
+                  <span class="cell">${ap.channel || '?'}</span>
+                  <span class="cell">${ap.band || '?'}</span>
+                  <span class="cell ${ap.encryption === 'Open' ? 'enc-open' : 'enc-wpa'}">${trunc(ap.encryption || '?', 8)}</span>
+                  <span class="cell ${sigClass(ap.signal_dbm)}"> ${ap.signal_dbm}</span>
+                  <span class="cell">${trunc(ap.manufacturer || '?', 10)}</span>
+              </div>
+          ').join('');
+      }
+
+      function renderClients(clients) {
+          const el = document.getElementById('list-clients');
+          const count = document.getElementById('count-clients');
+          if (!clients.length) {
+              el.innerHTML = '<div class="no-data">No Clients Detected</div>';
+              return;
+          }
+          count.textContent = clients.length + ' SHOWN';
+          const cols = '30% 20% 30% 10% 10%';
+          el.innerHTML = clients.map(c => '
+              <div class="row" style="grid-template-columns:${cols}">
+                  <span class="cell">&{trunc(c.mac, 17)}</span>
+                  <span class="cell">${trunc(c.manufacturer || '?', 10)}</span>
+                  <span class="cell">${trunc(c.ssid || 'unassoc', 16)}</span>
+                  <span class="cell ${sigClass(c.signal_dbm)}">${c.signal_dbm}</span>
+                  <span class"cell">${trunc(c.last_seen || '?', 8)}</span>
+              </div>
+          ').join('');
+      }
+
+      function renderBLE(devices) {
+          const el = document.getElementById('list-ble');
+          const count = document.getElementById('count-ble');
+          if (!devices.length) {
+              el.innerHTML = '<div class="no-data">No BLE Detected</div>';
+              return;
+          }
+          count.textContent = devices.length + ' SHOWN';
+          const cols = '40% 32% 16% 12%';
+          el.innerHTML = clients.map(d => '
+              <div class="row" style="grid-template-columns:${cols}">
+                  <span class="cell">&{trunc(d.mac, 17)}</span>
+                  <span class="cell">${trunc(d.manufacturer || '?', 12)}</span>
+                  <span class="cell">${trunc(d.device_type || '?', 8)}</span>
+                  <span class="cell ${sigClass(d.signal_dbm)}">${d.signal_dbm}</span>
+              </div>
+          ').join('');
+      }
+
+      function renderProbes(probes) {
+          const el = document.getElementById('list-probes');
+          const count = document.getElementById('count-probes');
+          if (!probes.length) {
+              el.innerHTML = '<div class="no-data">No Probes Detected</div>';
+              return;
+          }
+          count.textContent = probes.length + ' SHOWN';
+          const cols = '42% 58%';
+          el.innerHTML = clients.map(p => '
+              <div class="row" style="grid-template-columns:${cols}">
+                  <span class="cell">&{trunc(p.client_mac, 17)}</span>
+                  <span class="cell">${trunc(d.probed_ssid || '[wildcard]', 24)}</span>
+              </div>
+          ').join('');
+      }
+
+      // --Socket Events -- //
+
+      socket.on('signal_update', function(data) {
+        renderAPs(data.access_points || []);
+        renderClients(data.clients || []);
+        renderBLE(data.ble_devices || []);
+        renderProbes(data.probes || []);
+
+        const s = data.stats || {};
+        document.getElementById('stat-aps').textContent = s.total_aps ?? '--';
+        document.getElementById('stat-clients').textContent = s.total_clients ?? '--';
+        document.getElementById('stat-ble').textContent = s.total_ble ?? '--';
+        document.getElementById('stat-probes').textContent = s.total_probes ?? '--';
+
+        document.getElementById('sys-pipe').textContent = s.pipe_ok !== false ? 'OK' : 'ERR';
+        document.getElementById('sys-db').textContent = s.db_ok !== false ? 'OK' : 'ERR';
+        document.getElementById('sys-ble').textContent = s.ble_ok !== false ? 'OK' : 'ERR';
+      });
+
+      socket.on('connect', function() {
+        document.getElementById('sys-pipe').textContent = 'OK';
+      });
+
+      socket.on('disconnect', function() {
+        document.getElementById('sys-pipe').textContent = 'ERR';
+        document.getElementById('sys-db').textContent = '---';
+        document.getElementById('sys-ble').textContent = '---';
+      });
+
+      // -- Clock -- //
+
+      function updateClock() {
+        document.getElementById('clock').textContent =
+            new Date().toTimeString().slice(0, 8);
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // -- Session Timer -- //
+
+      const sessionStart = Date.now();
+
+      function updateSession() {
+        const elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+        const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+        const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+        const s = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('stat-session').textContent = '${h}:${m}:${s}';
+      }
+      updateSession();
+      setInterval(updateSession, 1000);
+    </script>
+  </body>
+</html>
